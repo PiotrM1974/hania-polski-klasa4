@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kim jestem? - Powtórka dla Hani</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: #ffffff;
+            --header-bg: #8c82b5; /* Lawenda */
+            --primary-btn: #f58268; /* Koralowy */
+            --primary-btn-hover: #e06c53;
+            --secondary-btn: #e0e0e0;
+            --text-main: #333333;
+            --text-light: #ffffff;
+            --correct: #4caf50;
+            --wrong: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--text-light);
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.8rem; }
+        h2 { font-size: 1.5rem; margin-bottom: 15px; color: var(--header-bg); }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .active-card {
+            display: flex;
+        }
+
+        .theory-box {
+            background-color: #f9f5f0;
+            border-left: 5px solid var(--primary-btn);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-btn);
+            color: var(--text-light);
+            flex-grow: 1;
+        }
+
+        .btn-primary:hover { background-color: var(--primary-btn-hover); transform: translateY(-2px); }
+
+        .btn-secondary {
+            background-color: var(--secondary-btn);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover { background-color: #d0d0d0; }
+        
+        .btn-audio {
+            background-color: var(--header-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .answer-btn {
+            background-color: #f0f0f0;
+            width: 100%;
+            text-align: left;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .answer-btn:hover { background-color: #e4e4e4; }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-btn);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        #feedback-msg {
+            font-weight: 700;
+            text-align: center;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Rozdział 1: Kim jestem?</h1>
+        <div id="progress-container" style="display: none;">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <p style="margin-top: 5px; font-size: 0.9rem;" id="progress-text">0 / 0</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Ekran główny -->
+        <div id="menu-card" class="card active-card">
+            <h2 style="text-align: center;">Cześć Haniu! Co dzisiaj robimy?</h2>
+            <button class="btn-primary" onclick="startApp('learn')">📖 Tryb Nauczania (Bez stresu)</button>
+            <button class="btn-secondary" onclick="startApp('quiz')">📝 Test (Sprawdź się!)</button>
+        </div>
+
+        <!-- Ekran teorii (tylko w trybie nauczania) -->
+        <div id="theory-card" class="card">
+            <h2>Teoria</h2>
+            <button class="btn-audio" onclick="speakTheory()">🔊 Przeczytaj mi to</button>
+            <div class="theory-box" id="theory-content"></div>
+            <div class="btn-group">
+                <button id="skip-btn" class="btn-secondary" onclick="skipQuestion()">Pomiń na razie</button>
+                <button class="btn-primary" onclick="showQuestion()">Rozumiem, idziemy dalej!</button>
+            </div>
+        </div>
+
+        <!-- Ekran pytania -->
+        <div id="question-card" class="card">
+            <h2 id="question-text">Pytanie...</h2>
+            <div id="answers-container" class="btn-group" style="flex-direction: column;"></div>
+            <p id="feedback-msg"></p>
+            <button id="next-btn" class="btn-primary" style="display: none;" onclick="nextStep()">Następne pytanie</button>
+        </div>
+
+        <!-- Ekran podsumowania -->
+        <div id="result-card" class="card">
+            <h2 style="text-align: center;">Koniec!</h2>
+            <p id="result-text" style="text-align: center; font-size: 1.2rem;"></p>
+            <button class="btn-primary" onclick="location.reload()">Wróć do menu głównego</button>
+        </div>
+    </div>
+
+    <script>
+        const database = [
+            {
+                theory: "Głoski to dźwięki, które słyszymy i wymawiamy. Litery to znaki, które widzimy i piszemy. Pamiętaj, że dwuznaki (np. sz, cz, rz) to dwie litery, ale tylko jedna głoska!",
+                question: "Czym różni się głoska od litery?",
+                answers: ["Głoski piszemy, litery słyszymy", "Głoski słyszymy i wymawiamy, a litery widzimy i piszemy", "To jest dokładnie to samo"],
+                correct: 1
+            },
+            {
+                theory: "Samogłoski to dźwięki, które wypowiadamy przy otwartych ustach: a, ą, e, ę, i, o, ó, u, y. Pozostałe to spółgłoski (np. b, c, d, k).",
+                question: "Który z poniższych wyrazów zaczyna się i kończy na samogłoskę?",
+                answers: ["Osa", "Kot", "Dom", "Pies"],
+                correct: 0
+            },
+            {
+                theory: "Wyraz 'lód' (zamarznięta woda) piszemy przez 'ó' zamknięte, bo wymienia się na 'lody' (ó wymienia się na o). 'Lud' (grupa ludzi) piszemy przez 'u' otwarte.",
+                question: "Dlaczego wyraz 'lód' (na jeziorze) piszemy przez 'ó'?",
+                answers: ["Bo tak mówi zasada o zakończeniach -ów", "Bo wymienia się na 'lody' (ó na o)", "To jest wyjątek"],
+                correct: 1
+            },
+            {
+                theory: "Mazurek Dąbrowskiego to polski hymn narodowy. Został napisany przez Józefa Wybickiego we Włoszech. W hymnie wspominane są ważne postacie, np. generał Jan Henryk Dąbrowski i Napoleon Bonaparte.",
+                question: "Kto napisał słowa Mazurka Dąbrowskiego?",
+                answers: ["Jan Henryk Dąbrowski", "Stefan Czarniecki", "Józef Wybicki"],
+                correct: 2
+            },
+            {
+                theory: "W wierszu jedna linijka tekstu to wers. Kilka wersów połączonych razem tworzy strofę (zwrotkę). Powtarzający się fragment to refren.",
+                question: "Jak nazywa się jedna linijka tekstu w wierszu?",
+                answers: ["Akapit", "Wers", "Strofa"],
+                correct: 1
+            },
+            {
+                theory: "Legenda to opowieść, która zawiera ziarno prawdy historycznej, ale występują w niej też elementy fantastyczne (magiczne, nieprawdopodobne), np. smoki czy myszy zjadające króla.",
+                question: "Co odróżnia legendę od zwykłego opowiadania historycznego?",
+                answers: ["Legenda zawsze jest prawdziwa", "Legenda łączy wydarzenia historyczne z elementami fantastycznymi", "Legenda to krótka notatka"],
+                correct: 1
+            },
+            {
+                theory: "Korzystając z internetu, musimy chronić nasze dane osobowe. Zamiast imienia i nazwiska używamy nicka (pseudonimu), a zamiast swojego zdjęcia - awatara (grafiki).",
+                question: "Jakiej informacji NIGDY nie powinnaś podawać w internecie nieznajomym?",
+                answers: ["Swojego wieku", "Dokładnego adresu zamieszkania", "Swojego ulubionego koloru"],
+                correct: 1
+            },
+            {
+                theory: "Wyrazy dzielimy na sylaby. Każda sylaba musi zawierać samogłoskę! Np. wyraz 'podstawowy' dzielimy tak: pod-sta-wo-wy (4 sylaby).",
+                question: "Jak poprawnie podzielisz na sylaby wyraz 'nieustannie'?",
+                answers: ["nie-u-stan-nie", "nieu-stan-nie", "ni-e-us-tan-nie"],
+                correct: 0
+            }
+        ];
+
+        let currentMode = '';
+        let mainQueue = [];
+        let skipQueue = [];
+        let isReviewingSkips = false;
+        let currentQIndex = 0;
+        let currentQuestionObj = null;
+        let score = 0;
+        let totalQuestions = 0;
+
+        function startApp(mode) {
+            currentMode = mode;
+            // Klonujemy bazę i tasujemy
+            mainQueue = [...database].sort(() => Math.random() - 0.5);
+            totalQuestions = mainQueue.length;
+            
+            document.getElementById('menu-card').classList.remove('active-card');
+            document.getElementById('progress-container').style.display = 'block';
+            
+            updateProgress();
+            loadNextFromQueue();
+        }
+
+        function loadNextFromQueue() {
+            if (mainQueue.length > 0) {
+                currentQuestionObj = mainQueue.shift();
+                processQuestion();
+            } else if (skipQueue.length > 0) {
+                mainQueue = skipQueue;
+                skipQueue = [];
+                isReviewingSkips = true;
+                currentQuestionObj = mainQueue.shift();
+                processQuestion();
+            } else {
+                endSession();
+            }
+        }
+
+        function processQuestion() {
+            resetUI();
+            if (currentMode === 'learn') {
+                document.getElementById('theory-card').classList.add('active-card');
+                document.getElementById('theory-content').innerText = currentQuestionObj.theory;
+                // Ukryj przycisk Pomiń jeśli już powtarzamy pominięte
+                document.getElementById('skip-btn').style.display = isReviewingSkips ? 'none' : 'block';
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showQuestion() {
+            window.speechSynthesis.cancel(); // Stop czytania
+            document.getElementById('theory-card').classList.remove('active-card');
+            document.getElementById('question-card').classList.add('active-card');
+            document.getElementById('question-text').innerText = currentQuestionObj.question;
+            
+            const container = document.getElementById('answers-container');
+            container.innerHTML = '';
+            
+            currentQuestionObj.answers.forEach((ans, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.innerText = ans;
+                btn.onclick = () => handleAnswer(index, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            const feedback = document.getElementById('feedback-msg');
+            const isCorrect = selectedIndex === currentQuestionObj.correct;
+
+            if (isCorrect) {
+                btnElement.style.backgroundColor = 'var(--correct)';
+                btnElement.style.color = 'white';
+                feedback.innerText = "Świetnie! Dobra odpowiedź.";
+                feedback.style.color = 'var(--correct)';
+                score++;
+                document.getElementById('next-btn').style.display = 'block';
+            } else {
+                btnElement.style.backgroundColor = 'var(--wrong)';
+                btnElement.style.color = 'white';
+                buttons[currentQuestionObj.correct].style.backgroundColor = 'var(--correct)';
+                buttons[currentQuestionObj.correct].style.color = 'white';
+                
+                if (currentMode === 'learn') {
+                    feedback.innerText = "Nie do końca. Przeczytajmy to jeszcze raz!";
+                    feedback.style.color = 'var(--wrong)';
+                    setTimeout(() => {
+                        // Wraca do teorii zamiast do następnego
+                        mainQueue.unshift(currentQuestionObj); 
+                        loadNextFromQueue();
+                    }, 2500);
+                } else {
+                    feedback.innerText = "Błąd!";
+                    feedback.style.color = 'var(--wrong)';
+                    document.getElementById('next-btn').style.display = 'block';
+                }
+            }
+        }
+
+        function skipQuestion() {
+            window.speechSynthesis.cancel();
+            skipQueue.push(currentQuestionObj);
+            loadNextFromQueue();
+        }
+
+        function nextStep() {
+            currentQIndex++;
+            updateProgress();
+            loadNextFromQueue();
+        }
+
+        function updateProgress() {
+            const done = currentQIndex;
+            const percent = (done / totalQuestions) * 100;
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-text').innerText = `Ukończono: ${done} / ${totalQuestions}`;
+        }
+
+        function speakTheory() {
+            window.speechSynthesis.cancel();
+            const text = document.getElementById('theory-content').innerText;
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'pl-PL';
+            msg.rate = 0.9; 
+            window.speechSynthesis.speak(msg);
+        }
+
+        function resetUI() {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active-card'));
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback-msg').innerText = '';
+        }
+
+        function endSession() {
+            resetUI();
+            document.getElementById('result-card').classList.add('active-card');
+            let resultText = `Zdobyłaś ${score} punktów na ${totalQuestions}! `;
+            if(score === totalQuestions) resultText += "Jesteś mistrzynią! 🎉";
+            else if (score >= totalQuestions / 2) resultText += "Bardzo dobry wynik! 👍";
+            else resultText += "Warto jeszcze poćwiczyć! 💪";
+            
+            document.getElementById('result-text').innerText = resultText;
+        }
+    </script>
+</body>
+</html>
