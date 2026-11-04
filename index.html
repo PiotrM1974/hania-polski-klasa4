@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="referrer" content="no-referrer">
+    <title>Kim jestem? - Klasa 4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: #ffffff;
+            --header-bg: #8c82b5; 
+            --primary-btn: #f58268; 
+            --primary-btn-hover: #e06c53;
+            --secondary-btn: #e0e0e0;
+            --text-main: #333333;
+            --text-light: #ffffff;
+            --correct: #4caf50;
+            --wrong: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overscroll-behavior-y: none;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--text-light);
+            width: 100%;
+            padding: calc(20px + env(safe-area-inset-top)) 20px 20px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .home-btn {
+            position: absolute;
+            left: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        h1 { font-size: 1.4rem; margin: 0; font-weight: 700;}
+        h2 { font-size: 1.5rem; margin-bottom: 15px; color: var(--header-bg); text-align: center;}
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px env(safe-area-inset-right) 20px env(safe-area-inset-left);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeUp 0.3s ease-out;
+        }
+
+        .active-card { display: flex; }
+
+        .theory-box {
+            background-color: #f9f5f0;
+            border-left: 5px solid var(--primary-btn);
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .theory-image {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            align-self: center;
+            background-color: #fff;
+            padding: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-direction: row;
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            min-height: 48px;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .btn-primary { background-color: var(--primary-btn); color: var(--text-light); flex-grow: 1; }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-secondary { background-color: var(--secondary-btn); color: var(--text-main); flex-grow: 1;}
+        .btn-secondary:active { background-color: #d0d0d0; transform: scale(0.97); }
+        
+        .btn-audio {
+            background-color: var(--header-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 5px;
+            flex-grow: 0;
+        }
+
+        .answer-btn {
+            background-color: #f5f5f7;
+            width: 100%;
+            text-align: left;
+            padding: 18px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 6px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #ffffff;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #feedback-msg { font-weight: 700; text-align: center; min-height: 28px; font-size: 1.2rem; }
+
+        @media (max-width: 600px) {
+            .btn-group { flex-direction: column; }
+            .card { padding: 20px; }
+            h2 { font-size: 1.35rem; }
+            .home-btn { font-size: 0.9rem; padding: 8px 12px;}
+            h1 { font-size: 1.2rem; margin-left: 60px; text-align: left;}
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <button class="home-btn" onclick="location.reload()">🏠 Menu</button>
+            <h1>Rozdział 1: Kim jestem?</h1>
+        </div>
+        <div id="progress-container" style="display: none;">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <p style="margin-top: 8px; font-size: 0.95rem; font-weight: 600;" id="progress-text">0 / 0</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="menu-card" class="card active-card">
+            <h2>Cześć Haniu! Gotowa na 4. klasę?</h2>
+            <div class="btn-group" style="flex-direction: column; gap: 20px;">
+                <button class="btn-primary" onclick="startApp('learn')" style="padding: 20px; font-size: 1.2rem;">📖 Tryb Nauczania<br><span style="font-size:0.9rem; font-weight:400;">Baza 70 zagadnień z obrazkami</span></button>
+                <button class="btn-secondary" onclick="startApp('quiz')" style="padding: 20px; font-size: 1.2rem;">📝 Szybki Test<br><span style="font-size:0.9rem; font-weight:400;">Losowe 15 pytań (jak kartkówka)</span></button>
+            </div>
+        </div>
+
+        <div id="theory-card" class="card">
+            <h2>Teoria</h2>
+            <button class="btn-audio" onclick="speakTheory()">🔊 Przeczytaj mi to</button>
+            <div class="theory-box">
+                <span id="theory-content"></span>
+                <!-- Zastosowano bezpośrednie linki CDN, wyłączono automatyczne ukrywanie błędów i dodano wymuszenie bezpieczeństwa (referrerpolicy) -->
+                <img id="theory-img" class="theory-image" src="" alt="Ilustracja pomocnicza" referrerpolicy="no-referrer" crossorigin="anonymous">
+            </div>
+            <div class="btn-group">
+                <button id="skip-btn" class="btn-secondary" onclick="skipQuestion()">Pomiń na razie</button>
+                <button class="btn-primary" onclick="showQuestion()">Rozumiem, idziemy dalej!</button>
+            </div>
+        </div>
+
+        <div id="question-card" class="card">
+            <h2 id="question-text">Pytanie...</h2>
+            <div id="answers-container" class="btn-group" style="flex-direction: column; gap: 12px;"></div>
+            <p id="feedback-msg"></p>
+            <button id="next-btn" class="btn-primary" style="display: none;" onclick="nextStep()">Następne pytanie</button>
+        </div>
+
+        <div id="result-card" class="card">
+            <h2>Koniec!</h2>
+            <p id="result-text" style="text-align: center; font-size: 1.3rem; margin-bottom: 20px;"></p>
+            <button class="btn-primary" onclick="location.reload()">Wróć do menu głównego</button>
+        </div>
+    </div>
+
+    <script>
+        const database = [
+            // --- NAUKA O JĘZYKU (20 pytań) ---
+            { theory: "Głoski to dźwięki, które słyszymy i wymawiamy. Litery to znaki, które widzimy i piszemy na papierze.", image: "https://images.unsplash.com/photo-1583215570087-4340d04b6bdf?w=400&q=80", question: "Czym różni się głoska od litery?", answers: ["Głoski piszemy, litery słyszymy", "Głoski słyszymy, a litery widzimy i piszemy", "To dokładnie to samo"], correct: 1 },
+            { theory: "Samogłoski to dźwięki wymawiane przy otwartych ustach: a, ą, e, ę, i, o, ó, u, y.", image: "https://images.unsplash.com/photo-1588523315808-0112ee56fc19?w=400&q=80", question: "Który wyraz zaczyna się i kończy na samogłoskę?", answers: ["Osa", "Kot", "Dom"], correct: 0 },
+            { theory: "Spółgłoski to litery, przy wymawianiu których napotykamy przeszkodę, np. zęby lub wargi.", image: "https://images.unsplash.com/photo-1606265752439-1f18756aa5fc?w=400&q=80", question: "Wskaż wyraz złożony z samych spółgłosek.", answers: ["Las", "Wtf", "Krzak"], correct: 1 },
+            { theory: "W każdej sylabie musi być dokładnie jedna samogłoska! Samogłoska to serce sylaby.", image: "https://images.unsplash.com/photo-1542614349-20f4c39c8033?w=400&q=80", question: "Jak poprawnie podzielisz wyraz 'nieustannie'?", answers: ["nie-u-stan-nie", "nieu-stan-nie", "ni-e-us-tan-nie"], correct: 0 },
+            { theory: "Dwuznaki (sz, cz, rz, dz, dż, dź, ch) to dwie litery, ale tylko jedna głoska.", image: "https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?w=400&q=80", question: "Ile liter i głosek ma wyraz 'rzeka'?", answers: ["5 liter i 5 głosek", "5 liter i 4 głoski", "4 litery i 5 głosek"], correct: 1 },
+            { theory: "Słownik ortograficzny uczy pisowni. Słownik języka polskiego wyjaśnia znaczenie wyrazu.", image: "https://images.unsplash.com/photo-1526084042848-d3db390a88cd?w=400&q=80", question: "Gdzie sprawdzisz, jak poprawnie napisać słowo 'gżegżółka'?", answers: ["W słowniku języka polskiego", "W słowniku ortograficznym", "W atlasie historycznym"], correct: 1 },
+            { theory: "W słownikach wyrazy układane są alfabetycznie. Jeśli pierwsze litery są takie same, patrzymy na drugą.", image: "https://images.unsplash.com/photo-1510526019567-0c7f21683050?w=400&q=80", question: "Który wyraz będzie w słowniku wcześniej: 'kacze' czy 'kocze'?", answers: ["kacze", "kocze", "Będą obok siebie"], correct: 0 },
+            { theory: "Głoska 'i' to pułapka! Jeśli stoi na końcu wyrazu lub przed spółgłoską, jest samogłoską. Jeśli przed samogłoską - tylko ZMIĘKCZA.", image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&q=80", question: "Jaką rolę pełni 'i' w wyrazie 'pies'?", answers: ["Tylko samogłoski", "Zmiękcza literę 'p'", "Nic nie robi"], correct: 1 },
+            { theory: "Gdy dwie takie same spółgłoski stoją obok siebie, zawsze rozdzielamy je przy dzieleniu na sylaby (pan-na).", image: "https://images.unsplash.com/photo-1507652313651-64fd372d6dc0?w=400&q=80", question: "Jak poprawnie podzielisz wyraz 'wanna'?", answers: ["wa-nna", "wan-na", "w-ann-a"], correct: 1 },
+            { theory: "Dwuznaków nigdy nie rozdzielamy przy przenoszeniu (np. piszemy ko-szyk, a nie kos-zyk).", image: "https://images.unsplash.com/photo-1558966858-a5bba6233a01?w=400&q=80", question: "Który podział wyrazu na sylaby jest poprawny?", answers: ["kos-zyk", "ko-szyk", "ko-sz-yk"], correct: 1 },
+            { theory: "Litery Ą i Ę to samogłoski nosowe. Słychać je trochę w nosie, gdy je wymawiamy.", image: "https://images.unsplash.com/photo-1532130777592-80db60b0948c?w=400&q=80", question: "Ile samogłosek jest w wyrazie 'wąż'?", answers: ["Z jednej (ą)", "Z dwóch (w, ą)", "Z trzech"], correct: 0 },
+            { theory: "Wyraz 'chleb' ma 5 liter, ale wymawiamy tylko 4 głoski, bo 'ch' to jeden dźwięk.", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80", question: "Ile głosek słyszymy w słowie 'chleb'?", answers: ["5 głosek", "4 głoski", "6 głosek"], correct: 1 },
+            { theory: "W słowie 'niebo', litera 'i' stoi między spółgłoską a samogłoską (n-i-e). Jest to znak miękkości, nie samodzielna głoska!", image: "https://images.unsplash.com/photo-1513002749550-c59d220b8e42?w=400&q=80", question: "Ile głosek ma słowo 'niebo'?", answers: ["5 głosek", "4 głoski (ń-e-b-o)", "3 głoski"], correct: 1 },
+            { theory: "W wyrazie 'Ziemia' litera 'i' występuje dwa razy. Obydwa pełnią TYLKO funkcję miękkości (dla liter z oraz m).", image: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=400&q=80", question: "Czy litera 'i' w wyrazie 'Ziemia' jest samodzielną głoską?", answers: ["Tak, zawsze", "Nie, obie litery 'i' tylko zmiękczają inne", "Tylko jedna z nich"], correct: 1 },
+            { theory: "Litera a głoska to nie to samo. Dźwięk to to, co dociera do naszego ucha z otoczenia.", image: "https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=400&q=80", question: "Co dociera do twojego ucha, gdy ktoś mówi?", answers: ["Litery", "Głoski", "Akapity"], correct: 1 },
+            { theory: "Litera to po prostu znak graficzny, który rysujemy długopisem na kartce.", image: "https://images.unsplash.com/photo-1583278857410-b9ccfb652eb6?w=400&q=80", question: "Czym jest znak graficzny?", answers: ["Literą", "Głoską", "Sylabą"], correct: 0 },
+            { theory: "Wyrazy długie (wielosylabowe) dzielimy zliczając samogłoski. Każda z nich to nowa sylaba.", image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&q=80", question: "Ile sylab ma słowo 'telewizor'?", answers: ["Trzy", "Cztery", "Pięć"], correct: 1 },
+            { theory: "Słowo 'dzban' zawiera dwuznak 'dz', który wymawiamy jako jeden połączony dźwięk.", image: "https://images.unsplash.com/photo-1591871279585-61be546127eb?w=400&q=80", question: "Jaką głoską zaczyna się słowo 'dzban'?", answers: ["Głoską d", "Głoską z", "Głoską dz"], correct: 2 },
+            { theory: "Kiedy mamy wyraz 'radio', dzielimy go 'ra-dio', a nie 'rad-io'. Sylaba musi brzmieć naturalnie.", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80", question: "Gdzie postawisz kreskę dzieląc słowo radio?", answers: ["ra-dio", "rad-io", "radi-o"], correct: 0 },
+            { theory: "Podział wyrazów na sylaby przydaje się najczęściej podczas pisania na końcu linijki.", image: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=400&q=80", question: "Kiedy używamy dzielenia na sylaby?", answers: ["Podczas czytania w myślach", "Gdy brakuje nam miejsca w linijce zeszytu", "Gdy krzyczymy z daleka"], correct: 1 },
+
+            // --- ORTOGRAFIA (25 pytań) ---
+            { theory: "Wyraz 'lód' (zamrożona woda) piszemy przez 'ó' zamknięte, bo wymienia się na 'lody' (ó wymienia się na o).", image: "https://images.unsplash.com/photo-1518413982992-628b031ed42a?w=400&q=80", question: "Dlaczego 'lód' (na jeziorze) piszemy przez 'ó'?", answers: ["Zasada o zakończeniach", "Bo wymienia się na 'lody' (ó na o)", "To jest wyjątek"], correct: 1 },
+            { theory: "Zasada wymiany: 'ó' piszemy zawsze wtedy, gdy w formach wyrazu wymienia się na: o, e, lub a.", image: "https://images.unsplash.com/photo-1522819894675-7b567a1da4cc?w=400&q=80", question: "Dlaczego 'pióro' piszemy przez 'ó'?", answers: ["Bo wymienia się na 'pierze' (ó na e)", "Bo wymienia się na 'pióra'", "Bo jest na początku wyrazu"], correct: 0 },
+            { theory: "Zakończenia '-ów' i '-ówka' zawsze piszemy przez 'ó'. Na przykład: klasówka, Kraków, pocztówka.", image: "https://images.unsplash.com/photo-1577705998148-6da4f3963bc8?w=400&q=80", question: "Jak zapiszesz poprawnie słowo: zam...wienie?", answers: ["Przez u", "Przez ó (końcówka -ów)", "Przez ó, bo zamawiać (wymiana na a)"], correct: 2 },
+            { theory: "Uwaga na trzy najważniejsze wyjątki od reguły '-ówka'! Zapamiętaj: skuwka, wsuwka, zasuwka. Piszemy je przez 'u'.", image: "https://images.unsplash.com/photo-1620860578631-073ce3bd1fcc?w=400&q=80", question: "Który z zestawów wyrazów jest napisany POPRAWNIE?", answers: ["skuwka, wsuwka, zasuwka", "skówka, wsówka, zasówka", "skuwka, wsówka, zasuwka"], correct: 0 },
+            { theory: "Literę 'u' otwarte piszemy niemal zawsze na samym końcu wyrazów, np. z kranu, do domu.", image: "https://images.unsplash.com/photo-1587588354456-ae376af71a25?w=400&q=80", question: "Jak zakończysz wyraz: wyjdę 'z ul...'?", answers: ["ó (kreskowane)", "u (otwarte)", "To zależy od zdania"], correct: 1 },
+            { theory: "Na początku wyrazów zazwyczaj piszemy 'u' (uwaga, ulica). Znane wyjątki to: ósmy, ówczesny.", image: "https://images.unsplash.com/photo-1533036662706-e75a6c117bde?w=400&q=80", question: "Który wyraz jest wyjątkiem i zaczyna się na literę 'ó'?", answers: ["Umywalka", "Ósmy", "Uśmiech"], correct: 1 },
+            { theory: "W czasownikach oznaczających czynność '-uje' zawsze piszemy 'u'. Pamiętaj: -uje się nie kreskuje!", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&q=80", question: "Jak napiszesz poprawnie: (on) maluje?", answers: ["Malóje", "Maluje", "Różnie, w zależności od farby"], correct: 1 },
+            { theory: "Czasami 'ó' nie chce się na nic wymienić. Nazywamy to 'ó niewymiennym' (córka, król).", image: "https://images.unsplash.com/photo-1596495578065-6e0763fa1178?w=400&q=80", question: "Dlaczego wyraz 'córka' ma 'ó'?", answers: ["Bo wymienia się na córeczka", "Bo to zasada końcówki", "To ó niewymienne (trzeba zapamiętać)"], correct: 2 },
+            { theory: "Cząstka '-un' lub '-unek'. Jeśli wyraz się tak kończy, zawsze użyj litery 'u' (np. ratunek).", image: "https://images.unsplash.com/photo-1500834371991-8848d1a65fb0?w=400&q=80", question: "Jak poprawnie napisać 'kier...nek'?", answers: ["Kierónek", "Kierunek", "Kirónek"], correct: 1 },
+            { theory: "Litera 'ó' wymienia się również na 'a'. Słowo 'powrót' piszemy przez ó, bo wymienia się na 'powracać'.", image: "https://images.unsplash.com/photo-1503792501406-2c40da09e1e2?w=400&q=80", question: "Przez jakie u napiszesz słowo 'skrócić'?", answers: ["ó, bo wymienia się na skracać", "u, bo to wyjątek", "ó, bo wymienia się na skrocić"], correct: 0 },
+            { theory: "Zdrobnienia z końcówką '-uszek' zawsze piszemy przez 'u' (łańcuszek, brzuszek, paluszek).", image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&q=80", question: "Które ze zdrobnień jest napisane BŁĘDNIE?", answers: ["Paluszek", "Kamykózek", "Brzuszek"], correct: 1 },
+            { theory: "Końcówka '-utki' u rzeczy małych i miłych zawsze ma 'u' (malutki, cieplutki).", image: "https://images.unsplash.com/photo-1555252136-22440b8577fb?w=400&q=80", question: "Jak wpiszesz w słowie: słodzi...tki?", answers: ["'ó' bo tak brzmi", "'u' otwarte", "To jest wyjątek"], correct: 1 },
+            { theory: "Wiewiórka, chór i szczegół to wyrazy z 'ó' niewymiennym. Trzeba je zapamiętać jak obrazek.", image: "https://images.unsplash.com/photo-1507666405895-422eee7d517f?w=400&q=80", question: "Jak nazywamy słowo 'wiewiórka' z punktu widzenia ortografii?", answers: ["Wyjątek od 'u' na początku", "Wyraz z 'ó' niewymiennym", "Zdrobnienie od wiewióry"], correct: 1 },
+            { theory: "Jaskółka i wróbel to ptaki, u których występuje 'ó' niewymienne.", image: "https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?w=400&q=80", question: "Który z tych ptaków piszemy przez 'ó' kreskowane?", answers: ["Obydwa (jaskółka i wróbel)", "Tylko jaskółkę", "Żadnego z nich"], correct: 0 },
+            { theory: "Słowo 'siódmy' piszemy przez ó, bo wymienia się na słowo 'siedem' (wymiana ó na e).", image: "https://images.unsplash.com/photo-1554188249-14a513511eb9?w=400&q=80", question: "Dlaczego słowo 'siódmy' ma 'ó'?", answers: ["Wymienia się na e (siedem)", "Bo jest niewymienne", "Bo na końcu jest y"], correct: 0 },
+            { theory: "Słowo 'kruk' piszemy przez u. Nie ma tu reguły wymiany, słyszymy u i piszemy u.", image: "https://images.unsplash.com/photo-1517783999520-f068d7431a60?w=400&q=80", question: "Przez jakie 'u' napiszesz czarnego ptaka - kruka?", answers: ["Przez ó", "Przez u otwarte", "To kolejny wyjątek"], correct: 1 },
+            { theory: "Wyraz 'góra' to klasyczny przykład 'ó' niewymiennego, który powtarza się na wielu dyktandach.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80", question: "Jak zapiszesz wyraz oznaczający wysokie wzniesienie?", answers: ["Zawsze przez ó (niewymienne)", "Przez u otwarte", "Przez ó, bo wymienia się na 'doły'"], correct: 0 },
+            { theory: "Wyrazy w dopełniaczu (odpowiadające na: kogo? czego? nie ma) z końcówką -ów zawsze mają ó (np. panów, psów).", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80", question: "Jak zapiszesz: Nie widzę dzisiaj w szkole (pan...w)?", answers: ["panuw", "panów", "zależy od wielkości panów"], correct: 1 },
+            { theory: "Słowo 'krótko' piszemy przez ó, ponieważ wymienia się na czasownik 'skracać' (to znana wymiana ó na a).", image: "https://images.unsplash.com/photo-1516564619799-a311b931e0f0?w=400&q=80", question: "Dlaczego 'krótko' piszemy przez ó?", answers: ["Bo to niewymienne", "Bo wymienia się na 'a' (skracać)", "To reguła końcówki -ówka"], correct: 1 },
+            { theory: "Wyraz 'zasuwka' to zamek do drzwi. To drugi (obok wsuwki) najsłynniejszy wyjątek, piszemy przez u!", image: "https://images.unsplash.com/photo-1558000143-a6079d846356?w=400&q=80", question: "Jaki jest poprawny zapis metalowego zamka?", answers: ["Zasówka", "Zasuwka", "Zasuwka przez dwa 'w'"], correct: 1 },
+            { theory: "Kierunek - wyraz ten należy do grupy rzeczowników zakończonych na -unek (zawsze przez u).", image: "https://images.unsplash.com/photo-1500834371991-8848d1a65fb0?w=400&q=80", question: "Przez co zapiszesz słowo kierunek, pokazujący drogę?", answers: ["Przez ó", "Przez u otwarte (reguła -unek)", "Przez 'u' bo to początek"], correct: 1 },
+            { theory: "Ówczesny (czyli należący do dawnych czasów) to jeden z bardzo nielicznych wyrazów, zaczynających się na 'ó'.", image: "https://images.unsplash.com/photo-1501139083538-0139583c060f?w=400&q=80", question: "Który wyraz z poniższych ZACZYNA SIĘ na literę ó?", answers: ["Umywalka", "Ówczesny", "Uśmiech"], correct: 1 },
+            { theory: "Słowo 'wózeczek' jest poprawne z 'ó', bo rdzennie pochodzi od słowa wóz (wóz -> wozy).", image: "https://images.unsplash.com/photo-1581452296434-2e9eb908d082?w=400&q=80", question: "Skąd wzięło się 'ó' w słowie wózeczek?", answers: ["To część końcówki", "Bo wymienia się na o w słowie 'wozy'", "Od innego słowa wózek"], correct: 1 },
+            { theory: "Brzuch - ta część ludzkiego ciała również kryje w sobie 'u' otwarte. Trzeba to po prostu zapamiętać.", image: "https://images.unsplash.com/photo-1568702846914-966a22b05328?w=400&q=80", question: "Jak napiszesz wyraz 'brzuch'?", answers: ["Przez ó kreskowane", "Przez u otwarte", "Przez ch i ó"], correct: 1 },
+            { theory: "Skuwka od długopisu (lub pióra) to absolutnie największa ortograficzna pułapka! Piszemy ją przez U.", image: "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=400&q=80", question: "Jak napisać plastikowe zamknięcie od długopisu?", answers: ["Skuwka (przez u)", "Skówka (przez ó)", "Skufka"], correct: 0 },
+
+            // --- LITERATURA I TEKSTY KULTURY (15 pytań) ---
+            { theory: "Mazurek Dąbrowskiego to nasz najważniejszy hymn. Jego autorem jest Józef Wybicki.", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/J%C3%B3zef_Wybicki.jpg/400px-J%C3%B3zef_Wybicki.jpg", question: "Kto napisał historyczny hymn Polski?", answers: ["Jan Henryk Dąbrowski", "Stefan Czarniecki", "Józef Wybicki"], correct: 2 },
+            { theory: "W hymnie wymieniony jest Napoleon Bonaparte, wielki wódz, cesarz francuski i sojusznik Polaków.", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg/400px-Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg", question: "O kim śpiewamy w hymnie: 'dał nam przykład jak zwyciężać mamy'?", answers: ["O Bonapartem", "O Bolesławie", "O Czarnieckim"], correct: 0 },
+            { theory: "W wierszu jedna pojedyncza linijka tekstu nazywa się wersem.", image: "https://images.unsplash.com/photo-1455390582262-044cdead27d8?w=400&q=80", question: "Czym jest wers w budowie wiersza?", answers: ["Pojedynczą linijką tekstu", "Całą zwrotką", "Tytułem wiersza"], correct: 0 },
+            { theory: "Kilka wersów zgrupowanych razem, połączonych wspólną myślą i rytmem, tworzy strofę, czyli zwrotkę.", image: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&q=80", question: "Jak inaczej w literaturze nazywamy strofę?", answers: ["Refrenem", "Zwrotką", "Akapitem"], correct: 1 },
+            { theory: "Powtarzający się tekst piosenki, zazwyczaj śpiewany po każdej zwrotce, to refren.", image: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80", question: "Czym jest powtarzający się w kółko tekst piosenki?", answers: ["Rytmem", "Akapitem", "Refrenem"], correct: 2 },
+            { theory: "Legenda to ludowa historia, która ma ziarno prawdy historycznej, ale obfituje w elementy magiczne.", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&q=80", question: "Co odróżnia legendę od opowieści?", answers: ["Jest zawsze w 100% prawdziwa", "Ma elementy magiczne (fantastyczne)", "Brak w niej bohaterów"], correct: 1 },
+            { theory: "Lech zobaczył gniazdo orła na tle czerwonego nieba i zdecydował założyć tam pierwszą stolicę - Gniezno.", image: "https://images.unsplash.com/photo-1582255653634-8c81cb517b62?w=400&q=80", question: "Jakie polskie miasto wywodzi swoją nazwę od słowa 'gniazdo'?", answers: ["Warszawa", "Kraków", "Gniezno"], correct: 2 },
+            { theory: "Piast z polskiej legendy był skromnym rzemieślnikiem i robił drewniane koła do wozów (stąd: kołodziej).", image: "https://images.unsplash.com/photo-1596766432029-79753e1ebef8?w=400&q=80", question: "Kim z zawodu był legendarny polski Piast?", answers: ["Królem", "Kołodziejem", "Kowalem"], correct: 1 },
+            { theory: "Element fantastyczny w literaturze to zdarzenie niemożliwe w prawdziwym świecie (np. czary, smoki).", image: "https://images.unsplash.com/photo-1574345422847-f01f8166c3ab?w=400&q=80", question: "Co jest przykładem takiego elementu fantastycznego?", answers: ["Magiczne pomnożenie jedzenia lub smoki", "Walka dwóch rycerzy na miecze", "Budowa drewnianego grodu"], correct: 0 },
+            { theory: "Hymn powstał w słonecznych Włoszech, aby zmotywować stacjonujące tam Legiony Polskie.", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Polish_Legions_in_Italy.jpg/400px-Polish_Legions_in_Italy.jpg", question: "Dla kogo Józef Wybicki napisał tę słynną pieśń?", answers: ["Dla małych dzieci", "Dla żołnierzy Legionów Polskich", "Dla polskiego króla"], correct: 1 },
+            { theory: "W hymnie śpiewamy o polskich rzekach: Wiśle i Warcie, by podkreślić wiarę w powrót żołnierzy do ojczyzny.", image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=400&q=80", question: "Przez jakie rzeki 'przejdziem' w polskim hymnie?", answers: ["Odrę i Nysę Łużycką", "Wisłę i Wartę", "Nil i Amazonkę"], correct: 1 },
+            { theory: "W hymnie słyszymy 'Jak Czarniecki do Poznania' - przypomina to historyczny ratunek ojczyzny przez hetmana Stefana Czarnieckiego.", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Stefan_Czarniecki.jpg/400px-Stefan_Czarniecki.jpg", question: "Który wódz rzucił się przez morze dla ratowania ojczyzny w naszym hymnie?", answers: ["Napoleon Bonaparte", "Stefan Czarniecki", "Jan Henryk Dąbrowski"], correct: 1 },
+            { theory: "Brat Lecha, mądry Czech poszedł na tereny wysunięte na południe i tam dał początek państwu (Czechom).", image: "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=400&q=80", question: "Dokąd powędrował brat o imieniu Czech?", answers: ["Na zimną północ", "Na górzyste południe", "Na wschód do lasów"], correct: 1 },
+            { theory: "Postrzyżyny to dawny słowiański rytuał obcinania długich włosów chłopcom, gdy kończyli 7 lat.", image: "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=400&q=80", question: "Ile lat miał chłopiec podczas obrzędu postrzyżyn?", answers: ["7 lat", "18 lat", "Dokładnie roczek"], correct: 0 },
+            { theory: "Synem słynnego Piasta Kołodzieja był młody chłopiec o imieniu Siemowit.", image: "https://images.unsplash.com/photo-1519087532029-9e81f5c6cc66?w=400&q=80", question: "Jak miał na imię syn Piasta?", answers: ["Lech", "Mieszko", "Siemowit"], correct: 2 },
+
+            // --- FORMY I BEZPIECZEŃSTWO (10 pytań) ---
+            { theory: "W internecie kluczowe dane osobowe (prawdziwe imię, dokładny adres, nazwa szkoły) muszą pozostać tajne.", image: "https://images.unsplash.com/photo-1509822929063-6b6cfc9b42f2?w=400&q=80", question: "Czego NIGDY NIE wolno podawać w sieci nieznajomym?", answers: ["Swojego prawdziwego wieku", "Dokładnego adresu zamieszkania i szkoły", "Nazwy ulubionej gry"], correct: 1 },
+            { theory: "Awatar to kwadratowa grafika zastępująca zdjęcie, a nick to Twoje wymyślone w sieci imię.", image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&q=80", question: "Czym jest awatar w wirtualnym świecie?", answers: ["Twoim wymyślonym imieniem", "Obrazkiem/grafiką profilową zamiast zdjęcia", "Hasłem do logowania"], correct: 1 },
+            { theory: "Pełny opis postaci zawiera zawsze 3 elementy: wygląd zewnętrzny, cechy charakteru (czyli usposobienie) i ulubione hobby.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80", question: "'Tomek jest odważny i zawsze pomaga innym' - to opis czego?", answers: ["Jego wyglądu", "Jego hobby i zainteresowań", "Jego cech charakteru"], correct: 2 },
+            { theory: "Notatka z trudnej lekcji musi być zwięzła, bardzo krótka i zawierać słowa-klucze.", image: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=400&q=80", question: "Jaka ma być poprawna notatka szkolna?", answers: ["Długa i bardzo szczegółowa jak książka", "Krótka, zawierająca tylko najważniejsze fakty", "Pisana rymowanym wierszem"], correct: 1 },
+            { theory: "Równoważnik zdania to urwane, szybkie hasło bez czasownika (np. 'Wielki sukces Polski'). Jest świetny do szybkich notatek.", image: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&q=80", question: "Które z podanych to równoważnik zdania (idealny do notatki)?", answers: ["Król wygrał ważną bitwę.", "Wygrana bitwa polskiego króla.", "Bitwa została wygrana przez króla zamek."], correct: 1 },
+            { theory: "Bezpieczne hasło nigdy nie opiera się na imionach! Musi mieć duże litery, cyfry oraz znaki specjalne.", image: "https://images.unsplash.com/photo-1510511459019-5efa7ae113f3?w=400&q=80", question: "Które z poniższych haseł jest najbardziej bezpieczne?", answers: ["Hania2016", "TrUsk4wk4_!9", "QWERTY12345"], correct: 1 },
+            { theory: "Phishing to częste oszustwo: ktoś np. w grze podaje się za admina, by ukraść Twoje hasło i całe konto.", image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400&q=80", question: "Co robisz, gdy wspaniałomyślny 'Admin' w grze pyta o Twoje hasło?", answers: ["Podaję szybko by dostać nagrodę", "Ignoruję go i absolutnie nikomu nie podaję hasła", "Wysyłam puste hasło dla żartu"], correct: 1 },
+            { theory: "Zasada ograniczonego zaufania mówi brutalną prawdę: nigdy nie wierz, że obcy w sieci pisze prawdę o sobie.", image: "https://images.unsplash.com/photo-1560060141-7b9018741ce7?w=400&q=80", question: "O czym przypomina zasada ograniczonego zaufania?", answers: ["Że każdy człowiek z natury mówi prawdę", "Że obcy internauta może podawać się za zupełnie kogoś innego", "Że można ufać kolegom w grze"], correct: 1 },
+            { theory: "Znaki szczególne w profesjonalnym opisie wyglądu to unikalne detale np: blizna na czole, piegi, charakterystyczne okulary.", image: "https://images.unsplash.com/photo-1511219662058-295eafb9b00e?w=400&q=80", question: "Co to jest 'znak szczególny' podczas opisu postaci?", answers: ["Jej ulubione jedzenie na obiad", "Styl w jakim lubi tańczyć", "Wyjątkowe cechy twarzy (np. piegi, blizna)"], correct: 2 },
+            { theory: "Akapit to to puste wcięcie w tekście na początku linijki. W wypracowaniu w ten sposób oddziela się od siebie nowe myśli.", image: "https://images.unsplash.com/photo-1455390582262-044cdead27d8?w=400&q=80", question: "Po co robimy akapit (wcięcie) podczas długiego pisania tekstu?", answers: ["Żeby długopis i ręka mogły odpocząć", "Zupełnie dla ozdoby zeszytu", "By oddzielić od siebie dwie nowe myśli"], correct: 2 }
+        ];
+
+        let currentMode = '';
+        let mainQueue = [];
+        let skipQueue = [];
+        let isReviewingSkips = false;
+        let currentQIndex = 0;
+        let currentQuestionObj = null;
+        let score = 0;
+        let totalQuestions = 0;
+
+        function startApp(mode) {
+            currentMode = mode;
+            const shuffledDatabase = [...database].sort(() => Math.random() - 0.5);
+            
+            if (mode === 'quiz') {
+                mainQueue = shuffledDatabase.slice(0, 15);
+            } else {
+                mainQueue = shuffledDatabase;
+            }
+            
+            totalQuestions = mainQueue.length;
+            
+            document.getElementById('menu-card').classList.remove('active-card');
+            document.getElementById('progress-container').style.display = 'block';
+            
+            updateProgress();
+            loadNextFromQueue();
+        }
+
+        function loadNextFromQueue() {
+            if (mainQueue.length > 0) {
+                currentQuestionObj = mainQueue.shift();
+                processQuestion();
+            } else if (skipQueue.length > 0) {
+                mainQueue = skipQueue;
+                skipQueue = [];
+                isReviewingSkips = true;
+                currentQuestionObj = mainQueue.shift();
+                processQuestion();
+            } else {
+                endSession();
+            }
+        }
+
+        function processQuestion() {
+            resetUI();
+            if (currentMode === 'learn') {
+                document.getElementById('theory-card').classList.add('active-card');
+                document.getElementById('theory-content').innerText = currentQuestionObj.theory;
+                
+                const imgElement = document.getElementById('theory-img');
+                if (currentQuestionObj.image) {
+                    imgElement.src = currentQuestionObj.image;
+                    imgElement.style.display = 'block';
+                } else {
+                    imgElement.style.display = 'none';
+                    imgElement.src = "";
+                }
+
+                document.getElementById('skip-btn').style.display = isReviewingSkips ? 'none' : 'block';
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showQuestion() {
+            window.speechSynthesis.cancel();
+            document.getElementById('theory-card').classList.remove('active-card');
+            document.getElementById('question-card').classList.add('active-card');
+            document.getElementById('question-text').innerText = currentQuestionObj.question;
+            
+            const container = document.getElementById('answers-container');
+            container.innerHTML = '';
+            
+            currentQuestionObj.answers.forEach((ans, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.innerText = ans;
+                btn.onclick = () => handleAnswer(index, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            const feedback = document.getElementById('feedback-msg');
+            const isCorrect = selectedIndex === currentQuestionObj.correct;
+
+            if (isCorrect) {
+                btnElement.style.backgroundColor = 'var(--correct)';
+                btnElement.style.color = 'white';
+                feedback.innerText = "Świetnie! Dobra odpowiedź.";
+                feedback.style.color = 'var(--correct)';
+                score++;
+                document.getElementById('next-btn').style.display = 'block';
+            } else {
+                btnElement.style.backgroundColor = 'var(--wrong)';
+                btnElement.style.color = 'white';
+                buttons[currentQuestionObj.correct].style.backgroundColor = 'var(--correct)';
+                buttons[currentQuestionObj.correct].style.color = 'white';
+                
+                if (currentMode === 'learn') {
+                    feedback.innerText = "Nie do końca. Przeczytajmy to jeszcze raz!";
+                    feedback.style.color = 'var(--wrong)';
+                    setTimeout(() => {
+                        mainQueue.unshift(currentQuestionObj); 
+                        loadNextFromQueue();
+                    }, 2500);
+                } else {
+                    feedback.innerText = "Błąd!";
+                    feedback.style.color = 'var(--wrong)';
+                    document.getElementById('next-btn').style.display = 'block';
+                }
+            }
+        }
+
+        function skipQuestion() {
+            window.speechSynthesis.cancel();
+            skipQueue.push(currentQuestionObj);
+            loadNextFromQueue();
+        }
+
+        function nextStep() {
+            currentQIndex++;
+            updateProgress();
+            loadNextFromQueue();
+        }
+
+        function updateProgress() {
+            const done = currentQIndex;
+            const percent = (done / totalQuestions) * 100;
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-text').innerText = `Ukończono: ${done} / ${totalQuestions}`;
+        }
+
+        function speakTheory() {
+            window.speechSynthesis.cancel();
+            setTimeout(() => {
+                const text = document.getElementById('theory-content').innerText;
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'pl-PL';
+                msg.rate = 0.9; 
+                window.speechSynthesis.speak(msg);
+            }, 50);
+        }
+
+        function resetUI() {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active-card'));
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback-msg').innerText = '';
+            document.getElementById('theory-img').style.display = 'none';
+        }
+
+        function endSession() {
+            resetUI();
+            document.getElementById('result-card').classList.add('active-card');
+            let resultText = `Zdobyłaś ${score} punktów na ${totalQuestions}! `;
+            if(score === totalQuestions) resultText += "Jesteś mistrzynią! 🎉";
+            else if (score >= totalQuestions / 2) resultText += "Bardzo dobry wynik! 👍";
+            else resultText += "Warto jeszcze poćwiczyć! 💪";
+            
+            document.getElementById('result-text').innerText = resultText;
+        }
+    </script>
+</body>
+</html>
